@@ -1,276 +1,218 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MuscleBalance & Fitness Tracker</title>
-    <style>
-        :root {
-            --bg-color: #f0f4f8;
-            --card-bg: #ffffff;
-            --text-main: #2d3748;
-            --text-muted: #718096;
-            --primary: #AEC6CF; /* Мягкий голубой */
-            --primary-dark: #8ab0bc;
-            --accent: #F8C8DC;  /* Бледно-розовый */
-            --accent-dark: #e8a5bc;
-            --success: #68D391;
-            --danger: #FC8181;
-            --radius: 16px;
-        }
+import { registerRootComponent } from 'expo';
+import React, { useState } from 'react';
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Linking } from 'react-native';
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
+function App() {
+  const [activeTab, setActiveTab] = useState('youtube');
+  const [selectedWorkout, setSelectedWorkout] = useState('pilates');
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-        }
+  const getMuscles = () => {
+    if (selectedWorkout === 'pilates') return ['Пресс', 'Спина', 'Кор'];
+    if (selectedWorkout === 'strength') return ['Ягодицы', 'Ноги', 'Руки'];
+    return ['Спина', 'Ноги', 'Шея'];
+  };
 
-        .container {
-            width: 100%;
-            max-width: 600px;
-        }
+  return (
+    <ScrollView contentContainerStyle={styles.container}>
+      {/* Заголовок */}
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>🌸 MuscleBalance</Text>
+        <Text style={styles.headerSubtitle}>Твой персональный фитнес-трекер и баланс мышц</Text>
+      </View>
 
-        header {
-            text-align: center;
-            margin-bottom: 24px;
-        }
+      {/* Вкладки */}
+      <View style={styles.navTabs}>
+        <TouchableOpacity 
+          style={[styles.tabBtn, activeTab === 'youtube' && styles.activeTab]} 
+          onPress={() => setActiveTab('youtube')}
+        >
+          <Text style={[styles.tabText, activeTab === 'youtube' && styles.activeText]}>▶ YouTube</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={[styles.tabBtn, activeTab === 'muscles' && styles.activeTab]} 
+          onPress={() => setActiveTab('muscles')}
+        >
+          <Text style={[styles.tabText, activeTab === 'muscles' && styles.activeText]}>👤 Мышцы</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={[styles.tabBtn, activeTab === 'weekly' && styles.activeTab]} 
+          onPress={() => setActiveTab('weekly')}
+        >
+          <Text style={[styles.tabText, activeTab === 'weekly' && styles.activeText]}>📊 Итоги</Text>
+        </TouchableOpacity>
+      </View>
 
-        header h1 {
-            font-size: 26px;
-            color: var(--text-main);
-            margin-bottom: 4px;
-        }
+      {/* Вкладка 1: YouTube */}
+      {activeTab === 'youtube' && (
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Тренировки на YouTube</Text>
+          <TouchableOpacity 
+            style={styles.workoutLink}
+            onPress={() => Linking.openURL('https://www.youtube.com/results?search_query=pilates+workout')}
+          >
+            <Text style={styles.linkText}>🧘‍♀️ Пилатес на все тело</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={[styles.workoutLink, {borderColor: '#AEC6CF', backgroundColor: '#F0F8FF'}]}
+            onPress={() => Linking.openURL('https://www.youtube.com/results?search_query=strength+workout')}
+          >
+            <Text style={[styles.linkText, {color: '#3A5A6A'}]}>🏋️‍♀️ Силовая тренировка</Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
-        header p {
-            font-size: 14px;
-            color: var(--text-muted);
-        }
+      {/* Вкладка 2: Мышцы */}
+      {activeTab === 'muscles' && (
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Оценка проработки мышц</Text>
+          <Text style={styles.label}>Выберите тренировку:</Text>
+          
+          <View style={styles.selectRow}>
+            <TouchableOpacity 
+              style={[styles.selectBtn, selectedWorkout === 'pilates' && styles.selectActive]}
+              onPress={() => setSelectedWorkout('pilates')}
+            >
+              <Text style={styles.selectText}>Пилатес</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={[styles.selectBtn, selectedWorkout === 'strength' && styles.selectActive]}
+              onPress={() => setSelectedWorkout('strength')}
+            >
+              <Text style={styles.selectText}>Силовая</Text>
+            </TouchableOpacity>
+          </View>
 
-        .card {
-            background: var(--card-bg);
-            border-radius: var(--radius);
-            padding: 20px;
-            margin-bottom: 16px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
+          <View style={styles.muscleBox}>
+            <Text style={styles.muscleTitle}>Задействованные зоны:</Text>
+            <View style={styles.tagsContainer}>
+              {getMuscles().map((m, index) => (
+                <View key={index} style={styles.muscleTag}>
+                  <Text style={styles.tagText}>{m}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        </View>
+      )}
 
-        .card h2 {
-            font-size: 18px;
-            margin-bottom: 12px;
-            color: var(--text-main);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
+      {/* Вкладка 3: Итоги */}
+      {activeTab === 'weekly' && (
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Итоги недели и рекомендации</Text>
+          <Text style={styles.statText}>Выполнено тренировок: <Text style={{fontWeight: 'bold'}}>4 из 5</Text></Text>
+          
+          <View style={styles.progressBar}>
+            <View style={styles.progressFill} />
+          </View>
 
-        /* Шаги */
-        .steps-display {
-            font-size: 32px;
-            font-weight: bold;
-            color: var(--primary-dark);
-            text-align: center;
-            margin: 10px 0;
-        }
+          <View style={styles.recommendations}>
+            <Text style={styles.recTitle}>💡 Персональные рекомендации:</Text>
+            <Text style={styles.recText}>• Отличный баланс нагрузки на мышцы кора и пресса!</Text>
+            <Text style={styles.recText}>• Для гармонии добавьте 1 легкую растяжку.</Text>
+          </View>
+        </View>
+      )}
+    </ScrollView>
+  );
+}
 
-        /* Анатомическая карта / Свечение мышц */
-        .body-map-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-top: 10px;
-        }
+const styles = StyleSheet.create({
+  container: {
+    padding: 20,
+    backgroundColor: '#FAF5F8',
+    flexGrow: 1,
+    alignItems: 'center',
+  },
+  header: {
+    backgroundColor: '#F8C8DC',
+    padding: 20,
+    borderRadius: 16,
+    width: '100%',
+    maxWidth: 500,
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  headerTitle: { fontSize: 22, fontWeight: 'bold', color: '#5A3D4A' },
+  headerSubtitle: { fontSize: 13, color: '#7A5C6B', marginTop: 4, textAlign: 'center' },
+  navTabs: {
+    flexDirection: 'row',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 6,
+    width: '100%',
+    maxWidth: 500,
+    marginBottom: 20,
+  },
+  tabBtn: { flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 8 },
+  activeTab: { backgroundColor: '#F8C8DC' },
+  tabText: { fontSize: 14, fontWeight: 'bold', color: '#777' },
+  activeText: { color: '#5A3D4A' },
+  card: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 20,
+    width: '100%',
+    maxWidth: 500,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+  },
+  cardTitle: { fontSize: 18, fontWeight: 'bold', color: '#5A3D4A', marginBottom: 12 },
+  workoutLink: {
+    padding: 14,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#F8C8DC',
+    backgroundColor: '#FFF0F5',
+    marginBottom: 10,
+    alignItems: 'center',
+  },
+  linkText: { fontWeight: 'bold', color: '#5A3D4A' },
+  label: { fontSize: 14, fontWeight: 'bold', color: '#4A4A4A', marginBottom: 8 },
+  selectRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
+  selectBtn: {
+    flex: 1,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#DDD',
+    borderRadius: 8,
+    alignItems: 'center',
+    marginHorizontal: 4,
+  },
+  selectActive: { backgroundColor: '#F8C8DC', borderColor: '#F8C8DC' },
+  selectText: { fontWeight: 'bold', color: '#5A3D4A' },
+  muscleBox: { backgroundColor: '#FAF5F8', padding: 12, borderRadius: 10, alignItems: 'center' },
+  muscleTitle: { fontWeight: 'bold', color: '#5A3D4A', marginBottom: 8 },
+  tagsContainer: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center' },
+  muscleTag: {
+    backgroundColor: '#F8C8DC',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 12,
+    margin: 4,
+  },
+  tagText: { color: '#5A3D4A', fontWeight: 'bold', fontSize: 12 },
+  statText: { fontSize: 14, color: '#4A4A4A', marginBottom: 8 },
+  progressBar: {
+    width: '100%',
+    height: 10,
+    backgroundColor: '#E0E0E0',
+    borderRadius: 5,
+    overflow: 'hidden',
+    marginBottom: 15,
+  },
+  progressFill: { width: '80%', height: '100%', backgroundColor: '#F8C8DC' },
+  recommendations: {
+    backgroundColor: '#F0F8FF',
+    borderLeftWidth: 4,
+    borderLeftColor: '#AEC6CF',
+    padding: 12,
+    borderRadius: 4,
+  },
+  recTitle: { fontWeight: 'bold', color: '#3A5A6A', marginBottom: 4 },
+  recText: { fontSize: 13, color: '#4A4A4A', marginBottom: 2 },
+});
 
-        .muscle-item {
-            background: #f7fafc;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 10px;
-            text-align: center;
-            transition: all 0.3s;
-        }
-
-        .muscle-item.worked {
-            background: rgba(174, 198, 207, 0.25);
-            border-color: var(--primary);
-            box-shadow: 0 0 10px rgba(174, 198, 207, 0.5);
-        }
-
-        .muscle-name {
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .muscle-status {
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-top: 4px;
-        }
-
-        .muscle-item.worked .muscle-status {
-            color: #2b6cb0;
-            font-weight: bold;
-        }
-
-        /* Кнопки */
-        .btn {
-            background: var(--primary);
-            color: var(--text-main);
-            border: none;
-            border-radius: 10px;
-            padding: 12px;
-            font-size: 15px;
-            font-weight: 600;
-            width: 100%;
-            cursor: pointer;
-            transition: background 0.2s;
-            margin-top: 10px;
-        }
-
-        .btn:hover {
-            background: var(--primary-dark);
-            color: white;
-        }
-
-        .btn-accent {
-            background: var(--accent);
-        }
-        .btn-accent:hover {
-            background: var(--accent-dark);
-            color: white;
-        }
-
-        /* Зарядка */
-        .routine-list {
-            list-style: none;
-        }
-
-        .routine-item {
-            display: flex;
-            align-items: center;
-            padding: 8px 0;
-            border-bottom: 1px solid #edf2f7;
-            font-size: 15px;
-        }
-
-        .routine-item:last-child {
-            border-bottom: none;
-        }
-
-        .routine-item input {
-            margin-right: 12px;
-            width: 18px;
-            height: 18px;
-            accent-color: var(--primary-dark);
-        }
-
-        .completed-text {
-            text-decoration: line-through;
-            color: var(--text-muted);
-        }
-    </style>
-</head>
-<body>
-
-    <div class="container">
-        <header>
-            <h1>MuscleBalance 🌸</h1>
-            <p>Умный фитнес-планировщик по нормам ВОЗ</p>
-        </header>
-
-        {/* 1. Шаги */}
-        <div class="card">
-            <h2>🚶‍♀️ Шаги за сегодня</h2>
-            <div class="steps-display" id="stepsCount">0 / 10,000</div>
-            <button class="btn" onclick="addSteps()">+ 1,000 шагов</button>
-        </div>
-
-        {/* 2. Утренняя зарядка */}
-        <div class="card">
-            <h2>☀️ Утренняя зарядка</h2>
-            <ul class="routine-list" id="routineList">
-                <li class="routine-item">
-                    <input type="checkbox" onchange="toggleRoutine(this)"> Суставная разминка (5 мин)
-                </li>
-                <li class="routine-item">
-                    <input type="checkbox" onchange="toggleRoutine(this)"> Мягкая растяжка / Пилатес (10 мин)
-                </li>
-                <li class="routine-item">
-                    <input type="checkbox" onchange="toggleRoutine(this)"> Дыхательные практики (3 мин)
-                </li>
-            </ul>
-        </div>
-
-        {/* 3. Каррта мышц (ВОЗ: нормы подходов и статус) */}
-        <div class="card">
-            <h2>🧬 Баланс мышц (Нормы ВОЗ)</h2>
-            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;">Цель: 10–20 подходов на группу в неделю</p>
-            
-            <div class="body-map-grid">
-                <div class="muscle-item worked" id="m-legs">
-                    <div class="muscle-name">🦵 Ноги / Ягодицы</div>
-                    <div class="muscle-status">14 / 16 подходов (Норма)</div>
-                </div>
-                <div class="muscle-item worked" id="m-back">
-                    <div class="muscle-name">🔙 Спина</div>
-                    <div class="muscle-status">12 / 12 подходов (Норма)</div>
-                </div>
-                <div class="muscle-item" id="m-chest">
-                    <div class="muscle-name">胸 Грудь</div>
-                    <div class="muscle-status">4 / 10 подходов (Нужен упор!)</div>
-                </div>
-                <div class="muscle-item" id="m-arms">
-                    <div class="muscle-name">💪 Руки / Плечи</div>
-                    <div class="muscle-status">6 / 12 подходов (Нужен упор!)</div>
-                </div>
-            </div>
-            
-            <button class="btn btn-accent" onclick="simulateWorkout()">+ Добавить силовую тренировку</button>
-        </div>
-
-    </div>
-
-    <script>
-        // Работа шагов
-        let steps = localStorage.getItem('mb_steps') ? parseInt(localStorage.getItem('mb_steps')) : 3400;
-        updateStepsUI();
-
-        function addSteps() {
-            steps += 1000;
-            localStorage.setItem('mb_steps', steps);
-            updateStepsUI();
-        }
-
-        function updateStepsUI() {
-            document.getElementById('stepsCount').innerText = `${steps.toLocaleString()} / 10,000`;
-        }
-
-        // Утренняя зарядка
-        function toggleRoutine(checkbox) {
-            if (checkbox.checked) {
-                checkbox.parentElement.style.textDecoration = 'line-through';
-                checkbox.parentElement.style.color = '#718096';
-            } else {
-                checkbox.parentElement.style.textDecoration = 'none';
-                checkbox.parentElement.style.color = '#2d3748';
-            }
-        }
-
-        // Симуляция тренировки для карты мышц
-        function simulateWorkout() {
-            const chest = document.getElementById('m-chest');
-            chest.classList.add('worked');
-            chest.querySelector('.muscle-status').innerText = '10 / 10 подходов (Цель достигнута!)';
-            alert('Тренировка учтена! Группа мышц (Грудь) подсвечена как проработанная.');
-        }
-    </script>
-</body>
-</html>
+registerRootComponent(App);
