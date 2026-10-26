@@ -1,218 +1,247 @@
-import { registerRootComponent } from 'expo';
-import React, { useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Linking } from 'react-native';
-
-function App() {
-  const [activeTab, setActiveTab] = useState('youtube');
-  const [selectedWorkout, setSelectedWorkout] = useState('pilates');
-
-  const getMuscles = () => {
-    if (selectedWorkout === 'pilates') return ['Пресс', 'Спина', 'Кор'];
-    if (selectedWorkout === 'strength') return ['Ягодицы', 'Ноги', 'Руки'];
-    return ['Спина', 'Ноги', 'Шея'];
-  };
-
-  return (
-    <ScrollView contentContainerStyle={styles.container}>
-      {/* Заголовок */}
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>🌸 MuscleBalance</Text>
-        <Text style={styles.headerSubtitle}>Твой персональный фитнес-трекер и баланс мышц</Text>
-      </View>
-
-      {/* Вкладки */}
-      <View style={styles.navTabs}>
-        <TouchableOpacity 
-          style={[styles.tabBtn, activeTab === 'youtube' && styles.activeTab]} 
-          onPress={() => setActiveTab('youtube')}
-        >
-          <Text style={[styles.tabText, activeTab === 'youtube' && styles.activeText]}>▶ YouTube</Text>
-        </TouchableOpacity>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MuscleBalance — Фитнес-трекер</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #FAF5F8;
+            margin: 0;
+            padding: 20px;
+            color: #4A4A4A;
+        }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        header {
+            background-color: #F8C8DC;
+            padding: 20px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(248, 200, 220, 0.4);
+            margin-bottom: 20px;
+        }
+        h1 { margin: 0; color: #5A3D4A; font-size: 24px; }
+        p { margin: 5px 0 0 0; color: #7A5C6B; font-size: 14px; }
         
-        <TouchableOpacity 
-          style={[styles.tabBtn, activeTab === 'muscles' && styles.activeTab]} 
-          onPress={() => setActiveTab('muscles')}
-        >
-          <Text style={[styles.tabText, activeTab === 'muscles' && styles.activeText]}>👤 Мышцы</Text>
-        </TouchableOpacity>
+        .nav-tabs {
+            display: flex;
+            background: #FFFFFF;
+            border-radius: 12px;
+            padding: 6px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            color: #777;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .tab-btn.active {
+            background-color: #F8C8DC;
+            color: #5A3D4A;
+        }
         
-        <TouchableOpacity 
-          style={[styles.tabBtn, activeTab === 'weekly' && styles.activeTab]} 
-          onPress={() => setActiveTab('weekly')}
-        >
-          <Text style={[styles.tabText, activeTab === 'weekly' && styles.activeText]}>📊 Итоги</Text>
-        </TouchableOpacity>
-      </View>
+        .card {
+            background: #FFFFFF;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+            display: none;
+        }
+        .card.active {
+            display: block;
+        }
+        
+        .workout-link {
+            text-decoration: none;
+            padding: 14px;
+            border-radius: 10px;
+            border: 1px solid #F8C8DC;
+            color: #5A3D4A;
+            display: block;
+            background-color: #FFF0F5;
+            margin-bottom: 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #DDD;
+            margin-bottom: 20px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        
+        .muscle-tag {
+            display: inline-block;
+            background-color: #F8C8DC;
+            color: #5A3D4A;
+            padding: 6px 12px;
+            border-radius: 12px;
+            margin: 4px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            background-color: #E0E0E0;
+            height: 12px;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+        .progress-fill {
+            width: 80%;
+            background-color: #F8C8DC;
+            height: 100%;
+        }
+        
+        .recommendations {
+            background-color: #F0F8FF;
+            border-left: 4px solid #AEC6CF;
+            padding: 12px;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
 
-      {/* Вкладка 1: YouTube */}
-      {activeTab === 'youtube' && (
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Тренировки на YouTube</Text>
-          <TouchableOpacity 
-            style={styles.workoutLink}
-            onPress={() => Linking.openURL('https://www.youtube.com/results?search_query=pilates+workout')}
-          >
-            <Text style={styles.linkText}>🧘‍♀️ Пилатес на все тело</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={[styles.workoutLink, {borderColor: '#AEC6CF', backgroundColor: '#F0F8FF'}]}
-            onPress={() => Linking.openURL('https://www.youtube.com/results?search_query=strength+workout')}
-          >
-            <Text style={[styles.linkText, {color: '#3A5A6A'}]}>🏋️‍♀️ Силовая тренировка</Text>
-          </TouchableOpacity>
-        </View>
-      )}
+<div class="container">
+    <header>
+        <h1>🌸 MuscleBalance</h1>
+        <p>Твой персональный фитнес-трекер и баланс мышц</p>
+    </header>
 
-      {/* Вкладка 2: Мышцы */}
-      {activeTab === 'muscles' && (
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Оценка проработки мышц</Text>
-          <Text style={styles.label}>Выберите тренировку:</Text>
-          
-          <View style={styles.selectRow}>
-            <TouchableOpacity 
-              style={[styles.selectBtn, selectedWorkout === 'pilates' && styles.selectActive]}
-              onPress={() => setSelectedWorkout('pilates')}
-            >
-              <Text style={styles.selectText}>Пилатес</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={[styles.selectBtn, selectedWorkout === 'strength' && styles.selectActive]}
-              onPress={() => setSelectedWorkout('strength')}
-            >
-              <Text style={styles.selectText}>Силовая</Text>
-            </TouchableOpacity>
-          </View>
+    <div class="nav-tabs">
+        <button class="tab-btn active" onclick="switchTab('youtube', event)">▶ YouTube</button>
+        <button class="tab-btn" onclick="switchTab('muscles', event)">👤 Мышцы</button>
+        <button class="tab-btn" onclick="switchTab('weekly', event)">📊 Итоги</button>
+    </div>
 
-          <View style={styles.muscleBox}>
-            <Text style={styles.muscleTitle}>Задействованные зоны:</Text>
-            <View style={styles.tagsContainer}>
-              {getMuscles().map((m, index) => (
-                <View key={index} style={styles.muscleTag}>
-                  <Text style={styles.tagText}>{m}</Text>
-                </View>
-              ))}
-            </View>
-          </View>
-        </View>
-      )}
+    <!-- Вкладка 1: YouTube -->
+    <div id="youtube" class="card active">
+        <h2 style="color: #5A3D4A; margin-top: 0;">Тренировки на YouTube</h2>
+        <p style="margin-bottom: 15px;">Выберите комплекс для выполнения:</p>
+        <a href="https://www.youtube.com/results?search_query=pilates+workout" target="_blank" class="workout-link">
+            🧘‍♀️ Пилатес на все тело
+        </a>
+        <a href="https://www.youtube.com/results?search_query=strength+workout" target="_blank" class="workout-link" style="border-color: #AEC6CF; background-color: #F0F8FF; color: #3A5A6A;">
+            🏋️‍♀️ Силовая тренировка
+        </a>
+    </div>
 
-      {/* Вкладка 3: Итоги */}
-      {activeTab === 'weekly' && (
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Итоги недели и рекомендации</Text>
-          <Text style={styles.statText}>Выполнено тренировок: <Text style={{fontWeight: 'bold'}}>4 из 5</Text></Text>
-          
-          <View style={styles.progressBar}>
-            <View style={styles.progressFill} />
-          </View>
+    <!-- Вкладка 2: Мышцы -->
+    <div id="muscles" class="card">
+        <h2 style="color: #5A3D4A; margin-top: 0;">Оценка проработки мышц</h2>
+        <label style="display: block; margin-bottom: 8px; font-weight: bold;">Выберите выполненную тренировку:</label>
+        <select id="workoutSelect" onchange="updateMuscles()">
+            <option value="pilates">Пилатес</option>
+            <option value="strength">Силовая тренировка</option>
+            <option value="stretching">Растяжка</option>
+        </select>
 
-          <View style={styles.recommendations}>
-            <Text style={styles.recTitle}>💡 Персональные рекомендации:</Text>
-            <Text style={styles.recText}>• Отличный баланс нагрузки на мышцы кора и пресса!</Text>
-            <Text style={styles.recText}>• Для гармонии добавьте 1 легкую растяжку.</Text>
-          </View>
-        </View>
-      )}
-    </ScrollView>
-  );
-}
+        <div style="text-align: center; margin: 20px 0;">
+            <svg width="140" height="260" viewBox="0 0 100 200" style="background: #FAF5F8; border-radius: 20px; padding: 10px;">
+                <circle cx="50" cy="25" r="12" fill="#E0E0E0" />
+                <rect id="m-torso" x="38" y="42" width="24" height="45" rx="6" fill="#F8C8DC" />
+                <rect id="m-arms" x="22" y="42" width="12" height="50" rx="4" fill="#E0E0E0" />
+                <rect id="m-arms2" x="66" y="42" width="12" height="50" rx="4" fill="#E0E0E0" />
+                <rect id="m-glutes" x="36" y="90" width="28" height="25" rx="4" fill="#F8C8DC" />
+                <rect id="m-legs1" x="37" y="118" width="10" height="65" rx="4" fill="#E0E0E0" />
+                <rect id="m-legs2" x="53" y="118" width="10" height="65" rx="4" fill="#E0E0E0" />
+            </svg>
+        </div>
 
-const styles = StyleSheet.create({
-  container: {
-    padding: 20,
-    backgroundColor: '#FAF5F8',
-    flexGrow: 1,
-    alignItems: 'center',
-  },
-  header: {
-    backgroundColor: '#F8C8DC',
-    padding: 20,
-    borderRadius: 16,
-    width: '100%',
-    maxWidth: 500,
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  headerTitle: { fontSize: 22, fontWeight: 'bold', color: '#5A3D4A' },
-  headerSubtitle: { fontSize: 13, color: '#7A5C6B', marginTop: 4, textAlign: 'center' },
-  navTabs: {
-    flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 6,
-    width: '100%',
-    maxWidth: 500,
-    marginBottom: 20,
-  },
-  tabBtn: { flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 8 },
-  activeTab: { backgroundColor: '#F8C8DC' },
-  tabText: { fontSize: 14, fontWeight: 'bold', color: '#777' },
-  activeText: { color: '#5A3D4A' },
-  card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 20,
-    width: '100%',
-    maxWidth: 500,
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 5,
-  },
-  cardTitle: { fontSize: 18, fontWeight: 'bold', color: '#5A3D4A', marginBottom: 12 },
-  workoutLink: {
-    padding: 14,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#F8C8DC',
-    backgroundColor: '#FFF0F5',
-    marginBottom: 10,
-    alignItems: 'center',
-  },
-  linkText: { fontWeight: 'bold', color: '#5A3D4A' },
-  label: { fontSize: 14, fontWeight: 'bold', color: '#4A4A4A', marginBottom: 8 },
-  selectRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
-  selectBtn: {
-    flex: 1,
-    padding: 10,
-    borderWidth: 1,
-    borderColor: '#DDD',
-    borderRadius: 8,
-    alignItems: 'center',
-    marginHorizontal: 4,
-  },
-  selectActive: { backgroundColor: '#F8C8DC', borderColor: '#F8C8DC' },
-  selectText: { fontWeight: 'bold', color: '#5A3D4A' },
-  muscleBox: { backgroundColor: '#FAF5F8', padding: 12, borderRadius: 10, alignItems: 'center' },
-  muscleTitle: { fontWeight: 'bold', color: '#5A3D4A', marginBottom: 8 },
-  tagsContainer: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center' },
-  muscleTag: {
-    backgroundColor: '#F8C8DC',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 12,
-    margin: 4,
-  },
-  tagText: { color: '#5A3D4A', fontWeight: 'bold', fontSize: 12 },
-  statText: { fontSize: 14, color: '#4A4A4A', marginBottom: 8 },
-  progressBar: {
-    width: '100%',
-    height: 10,
-    backgroundColor: '#E0E0E0',
-    borderRadius: 5,
-    overflow: 'hidden',
-    marginBottom: 15,
-  },
-  progressFill: { width: '80%', height: '100%', backgroundColor: '#F8C8DC' },
-  recommendations: {
-    backgroundColor: '#F0F8FF',
-    borderLeftWidth: 4,
-    borderLeftColor: '#AEC6CF',
-    padding: 12,
-    borderRadius: 4,
-  },
-  recTitle: { fontWeight: 'bold', color: '#3A5A6A', marginBottom: 4 },
-  recText: { fontSize: 13, color: '#4A4A4A', marginBottom: 2 },
-});
+        <div style="background: #FAF5F8; padding: 12px; border-radius: 10px; text-align: center;">
+            <strong>Задействованные зоны:</strong>
+            <div id="muscleTags" style="margin-top: 6px;">
+                <span class="muscle-tag">Пресс</span>
+                <span class="muscle-tag">Спина</span>
+                <span class="muscle-tag">Кор</span>
+            </div>
+        </div>
+    </div>
 
-registerRootComponent(App);
+    <!-- Вкладка 3: Итоги -->
+    <div id="weekly" class="card">
+        <h2 style="color: #5A3D4A; margin-top: 0;">Итоги недели и рекомендации</h2>
+        <p>Выполнено тренировок: <strong>4 из 5</strong></p>
+        <div class="progress-bar">
+            <div class="progress-fill"></div>
+        </div>
+
+        <div class="recommendations">
+            <h4 style="margin: 0 0 6px 0; color: #3A5A6A;">💡 Персональные рекомендации:</h4>
+            <ul style="margin: 0; padding-left: 20px; font-size: 14px; color: #4A4A4A;">
+                <li>Отличный баланс нагрузки на мышцы кора и пресса!</li>
+                <li>Для гармонии добавьте 1 легкую растяжку в конце недели.</li>
+                <li>Не забывайте соблюдать питьевой режим после занятий.</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+    function switchTab(tabId, event) {
+        document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        
+        document.getElementById(tabId).classList.add('active');
+        event.currentTarget.classList.add('active');
+    }
+
+    function updateMuscles() {
+        const val = document.getElementById('workoutSelect').value;
+        const torso = document.getElementById('m-torso');
+        const arms1 = document.getElementById('m-arms');
+        const arms2 = document.getElementById('m-arms2');
+        const glutes = document.getElementById('m-glutes');
+        const legs1 = document.getElementById('m-legs1');
+        const legs2 = document.getElementById('m-legs2');
+        const tagsContainer = document.getElementById('muscleTags');
+
+        if (val === 'pilates') {
+            torso.style.fill = '#F8C8DC';
+            arms1.style.fill = '#E0E0E0';
+            arms2.style.fill = '#E0E0E0';
+            glutes.style.fill = '#F8C8DC';
+            legs1.style.fill = '#E0E0E0';
+            legs2.style.fill = '#E0E0E0';
+            tagsContainer.innerHTML = '<span class="muscle-tag">Пресс</span><span class="muscle-tag">Спина</span><span class="muscle-tag">Кор</span>';
+        } else if (val === 'strength') {
+            torso.style.fill = '#E0E0E0';
+            arms1.style.fill = '#AEC6CF';
+            arms2.style.fill = '#AEC6CF';
+            glutes.style.fill = '#F8C8DC';
+            legs1.style.fill = '#AEC6CF';
+            legs2.style.fill = '#AEC6CF';
+            tagsContainer.innerHTML = '<span class="muscle-tag">Ягодицы</span><span class="muscle-tag">Ноги</span><span class="muscle-tag">Руки</span>';
+        } else {
+            torso.style.fill = '#F8C8DC';
+            arms1.style.fill = '#E0E0E0';
+            arms2.style.fill = '#E0E0E0';
+            glutes.style.fill = '#E0E0E0';
+            legs1.style.fill = '#AEC6CF';
+            legs2.style.fill = '#AEC6CF';
+            tagsContainer.innerHTML = '<span class="muscle-tag">Спина</span><span class="muscle-tag">Ноги</span><span class="muscle-tag">Шея</span>';
+        }
+    }
+</script>
+
+</body>
+</html>
